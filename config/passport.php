@@ -9,7 +9,7 @@ return [
     |
     | Here you may specify which authentication guard Passport will use when
     | authenticating users. This value should correspond with one of your
-    | guards that is already present in your "auth" configuration file.
+    | guards that is already present in your "Auth" configuration file.
     |
     */
 

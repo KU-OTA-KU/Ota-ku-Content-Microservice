@@ -1,22 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Routing\Controller;
+use Illuminate\Http\JsonResponse;
 
-class AuthController extends Controller
+class LoginController extends Controller
 {
     /**
-     * @OA\Info(
-     *     title="Register a new user and return an access token.",
-     *     version="111",
-     * )
      * @OA\Post(
-     *     path="/register",
-     *     summary="Register a new user",
+     *     path="/login",
+     *     summary="login",
      *     description="Register a new user and return an access token.",
      *     @OA\RequestBody(
      *         required=true,
@@ -49,26 +44,16 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(Request $request): \Illuminate\Http\JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        if(Auth::attempt($request->only('email', 'password'))){
+            $user = Auth::user();
+            $success['token'] =  $user->createToken('MyApp')->accessToken;
+            $success['name'] =  $user->name;
+            return response()->json(['success' => $success], 200);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        } else {
+            return response()->json(['error' => 'Unauthorised'], 401);
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('Personal Access Token')->plainTextToken;
-
-        return response()->json(['token' => $token], 201);
     }
 }

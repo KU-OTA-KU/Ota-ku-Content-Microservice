@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticate;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticate
 {
@@ -18,10 +18,20 @@ class User extends Authenticate
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'login',
         'email',
         'password',
     ];
+
+    /**
+     * The IP addresses associated with the user.
+     *
+     * @return BelongsToMany
+     */
+    public function ipAddresses(): BelongsToMany
+    {
+        return $this->belongsToMany(IpAddress::class, 'user_ip')->withTimestamps();
+    }
 
     /**
      * The attributes that should be hidden for serialization.
