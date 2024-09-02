@@ -3,18 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
-use App\Models\IpAddress; // Не забудь добавить этот импорт
+use App\Models\IpAddress;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
-use App\Traits\HasIpAddresses;
 
 class RegisterController extends Controller
 {
-    use HasIpAddresses;
-
     /**
      * @OA\Post(
      *     path="/register",
