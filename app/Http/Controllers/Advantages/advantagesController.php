@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Advantages;
 
+use App\Models\AdvantagesTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache; // Импорт фасада Cache
-use App\Models\FaqTranslation;
+use Illuminate\Support\Facades\Cache;
 
 class advantagesController extends Controller
 {
@@ -45,24 +45,24 @@ class advantagesController extends Controller
     public function getAll(Request $request): JsonResponse
     {
         $locale = $request->header('Accept-Language', 'en');
-        $cacheKey = "faq_all_{$locale}";
+        $cacheKey = "advantages_all_{$locale}";
         $cacheTTL = now()->addMonth();
 
-        $faqTranslations = Cache::get($cacheKey);
+        $advantagesTranslations = Cache::get($cacheKey);
 
-        if (!$faqTranslations) {
-            $faqTranslations = FaqTranslation::where('locale', $locale)->get()->toArray();
+        if (!$advantagesTranslations) {
+            $advantagesTranslations = AdvantagesTranslation::where('locale', $locale)->get()->toArray();
 
-            if (!empty($faqTranslations)) {
-                Cache::put($cacheKey, $faqTranslations, $cacheTTL);
+            if (!empty($advantagesTranslations)) {
+                Cache::put($cacheKey, $advantagesTranslations, $cacheTTL);
             } else {
-                return response()->json(['status' => 'failed', 'message' => 'FAQS not found'], 404);
+                return response()->json(['status' => 'failed', 'message' => 'Advantages not found'], 404);
             }
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => $faqTranslations
+            'message' => $advantagesTranslations
         ], 200);
     }
 
@@ -124,24 +124,24 @@ class advantagesController extends Controller
         }
 
         $locale = $request->header('Accept-Language', 'en');
-        $cacheKey = "faq_{$id}_{$locale}";
+        $cacheKey = "advantages_{$id}_{$locale}";
         $cacheTTL = now()->addMonth();
 
-        $faqTranslation = Cache::get($cacheKey);
+        $advantagesTranslation = Cache::get($cacheKey);
 
-        if (!$faqTranslation) {
-            $faqTranslation = FaqTranslation::where('faq_id', $id)->where('locale', $locale)->first();
+        if (!$advantagesTranslation) {
+            $advantagesTranslation = AdvantagesTranslation::where('advantages_id', $id)->where('locale', $locale)->first();
 
-            if (!empty($faqTranslation)) {
-                Cache::put($cacheKey, $faqTranslation, $cacheTTL);
+            if (!empty($advantagesTranslation)) {
+                Cache::put($cacheKey, $advantagesTranslation, $cacheTTL);
             } else {
-                return response()->json(['status' => 'failed', 'message' => 'FAQS not found'], 404);
+                return response()->json(['status' => 'failed', 'message' => 'Advantages not found'], 404);
             }
         }
 
         return response()->json([
             'status' => 'success',
-            'response' => $faqTranslation
+            'response' => $advantagesTranslation
         ], 200);
     }
 }
