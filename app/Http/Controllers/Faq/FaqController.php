@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache; // Импорт фасада Cache
 use App\Models\FaqTranslation;
 
-class Faq extends Controller
+class FaqController extends Controller
 {
     /**
      * @OA\Get(
@@ -44,17 +45,25 @@ class Faq extends Controller
     public function getAll(Request $request): JsonResponse
     {
         $locale = $request->header('Accept-Language', 'en');
+        $cacheKey = "faq_all_{$locale}";
+        $cacheTTL = now()->addMonth();
 
-        $faqTranslations = FaqTranslation::where('locale', $locale)->get();
+        $faqTranslations = Cache::get($cacheKey);
 
-        if ($faqTranslations->isEmpty()) {
-            return response()->json(['status' => 'failed', 'message' => 'FAQS not found'], 404);
+        if (!$faqTranslations) {
+            $faqTranslations = FaqTranslation::where('locale', $locale)->get()->toArray();
+
+            if (!empty($faqTranslations)) {
+                Cache::put($cacheKey, $faqTranslations, $cacheTTL);
+            } else {
+                return response()->json(['status' => 'failed', 'message' => 'FAQS not found'], 404);
+            }
         }
 
         return response()->json([
             'status' => 'success',
-            "message" => $faqTranslations
-        ]);
+            'message' => $faqTranslations
+        ], 200);
     }
 
     /**
@@ -115,15 +124,24 @@ class Faq extends Controller
         }
 
         $locale = $request->header('Accept-Language', 'en');
-        $faqTranslation = FaqTranslation::where('faq_id', $id)->where('locale', $locale)->first();
+        $cacheKey = "faq_{$id}_{$locale}";
+        $cacheTTL = now()->addMonth();
+
+        $faqTranslation = Cache::get($cacheKey);
 
         if (!$faqTranslation) {
-            return response()->json(['status' => 'failed', 'message' => 'FAQ not found for the specified locale and id'], 404);
+            $faqTranslation = FaqTranslation::where('faq_id', $id)->where('locale', $locale)->first();
+
+            if (!empty($faqTranslation)) {
+                Cache::put($cacheKey, $faqTranslation, $cacheTTL);
+            } else {
+                return response()->json(['status' => 'failed', 'message' => 'FAQS not found'], 404);
+            }
         }
 
         return response()->json([
             'status' => 'success',
             'response' => $faqTranslation
-        ]);
+        ], 200);
     }
 }

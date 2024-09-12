@@ -4,7 +4,8 @@
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
-use App\Http\Controllers\Faq\Faq;
+use App\Http\Controllers\Faq\FaqController;
+use App\Http\Controllers\Advantages\advantagesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,12 +22,20 @@ use Illuminate\Support\Facades\Route;
 // auth
 Route::prefix('auth')->group(function () {
     Route::post('register', [RegisterController::class, 'register']);
-    Route::post('otp/generate', [OtpController::class, 'generateOtp']);
-    Route::post('otp/verify', [OtpController::class, 'verifyOtp']);
+    Route::prefix('otp')->group(function () {
+        Route::post('generate', [OtpController::class, 'generateOtp']);
+        Route::post('verify', [OtpController::class, 'verifyOtp']);
+    });
+});
+
+// advantages
+Route::prefix('advantages')->group(function () {
+    Route::get('/', [advantagesController::class, 'getAll']);
+    Route::get('id/{id}', [advantagesController::class, 'getById']);
 });
 
 // faq
 Route::prefix('faq')->group(function () {
-    Route::get('get/all', [Faq::class, 'getAll']);
-    Route::get('get/{id}', [Faq::class, 'getById']);
+    Route::get('/', [FaqController::class, 'getAll']);
+    Route::get('id/{id}', [FaqController::class, 'getById']);
 });
