@@ -4,6 +4,7 @@
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\Faq\Faq;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,4 +23,10 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [RegisterController::class, 'register']);
     Route::post('otp/generate', [OtpController::class, 'generateOtp']);
     Route::post('otp/verify', [OtpController::class, 'verifyOtp']);
+});
+
+// faq
+Route::prefix('faq')->group(function () {
+    Route::get('get/all', [Faq::class, 'getAll']);
+    Route::get('get/{id}', [Faq::class, 'getById']);
 });

@@ -101,6 +101,6 @@ class RegisterController extends Controller
 
         $user->ipAddresses()->attach($ipRecord->id);
 
-        return response()->json(['status' => 'success', 'message' => 'Your account has been created!'], 200);
+        return response()->json(['status' => 'success', 'response' => 'Your account has been created!'], 200);
     }
 }

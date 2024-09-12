@@ -29,6 +29,7 @@ class OtpController extends Controller
      *         response=200,
      *         description="OTP sent successfully",
      *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
      *             @OA\Property(property="message", type="string", example="OTP sent successfully")
      *         )
      *     ),
@@ -36,6 +37,7 @@ class OtpController extends Controller
      *         response=404,
      *         description="User with this email does not exist",
      *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
      *             @OA\Property(property="message", type="string", example="User with this email does not exist")
      *         )
      *     ),
@@ -43,6 +45,7 @@ class OtpController extends Controller
      *         response=429,
      *         description="OTP already sent. Please wait before requesting again.",
      *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="incomplete"),
      *             @OA\Property(property="message", type="string", example="OTP already sent. Please wait before requesting again.")
      *         )
      *     ),
@@ -50,6 +53,7 @@ class OtpController extends Controller
      *         response=422,
      *         description="Validation error",
      *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
      *             @OA\Property(property="message", type="string", example="The given data was invalid."),
      *             @OA\Property(
      *                 property="errors",
@@ -73,11 +77,11 @@ class OtpController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => __('otp.user_not_found')], 404);
+            return response()->json(['status' => 'failed', 'response' => __('otp.user_not_found')], 404);
         }
 
         if (Cache::has('otp_code_' . $user->id)) {
-            return response()->json(['message' => __('otp.otp_already_sent')], 429);
+            return response()->json(['status' => 'incomplete', 'response' => __('otp.otp_already_sent')], 429);
         }
 
         $otpCode = random_int(10000, 99999);
@@ -86,9 +90,63 @@ class OtpController extends Controller
 
         Mail::to($user->email)->send(new OtpMail($otpCode));
 
-        return response()->json(['message' => __('otp.otp_sent_success')], 200);
+        return response()->json(['status' => 'success', 'response' => __('otp.otp_sent_success')], 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/verify-otp",
+     *     summary="Verify OTP",
+     *     description="This endpoint verifies the one-time password (OTP) sent to the user's email.",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "otp"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="otp", type="integer", format="int32", example=12345)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OTP verified successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="OTP verified successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid OTP or user does not exist",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="OTP verification failed or user not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="failed"),
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The email field is required.")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="otp",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The otp field is required.")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function verifyOtp(Request $request): JsonResponse
     {
         $request->validate([
@@ -99,13 +157,14 @@ class OtpController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => __('otp.user_not_found')], 400);
+            return response()->json(['status' => 'failed', 'response' => __('otp.user_not_found')], 400);
         }
 
         if (Cache::has('otp_code_' . $user->id)) {
-            return response()->json(['message' => __('otp.otp_verify_success')], 200);
+            return response()->json(['status' => 'success', 'response' => __('otp.otp_verify_success')], 200);
         } else {
-            return response()->json(['message' => __('otp.otp_verify_failed')], 400 );
+            return response()->json(['status' => 'failed', 'response' => __('otp.otp_verify_failed')], 400);
         }
     }
 }
+
