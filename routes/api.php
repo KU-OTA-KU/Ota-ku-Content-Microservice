@@ -2,7 +2,6 @@
 
 // routes/api.php Laravel routes/api.php
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Faq\FaqController;
 use App\Http\Controllers\Advantages\advantagesController;
