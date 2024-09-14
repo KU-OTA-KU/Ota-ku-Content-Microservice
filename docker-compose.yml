@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.2'
 
 services:
     nginx:
@@ -7,7 +7,7 @@ services:
             - ./:/var/www
             - ./_docker/nginx/conf.d:/etc/nginx/conf.d
         ports:
-            - "8876:80"
+            - "49152:80"
         depends_on:
             - app
         container_name: nginx
@@ -18,4 +18,27 @@ services:
             dockerfile: _docker/app/Dockerfile
         volumes:
             - ./:/var/www
+        depends_on:
+            - db
         container_name: project
+
+    db:
+        image: mysql:8.0
+        restart: always
+        volumes:
+            - ./tmp/db:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: contentMicroservice
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "49153:3306"
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+        container_name: database
+    cache:
+        image: redis:latest
+        restart: always
+        volumes:
+            - ./tmp/cache:/var/lib/redis
+        ports:
+            - "49154:6379"
+        container_name: cache
