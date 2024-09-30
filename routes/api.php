@@ -1,8 +1,7 @@
 <?php
 
 // routes/api.php Laravel routes/api.php
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\Subscriptions\SubscriptionsController;
 use App\Http\Controllers\Faq\FaqController;
 use App\Http\Controllers\Advantages\advantagesController;
 use Illuminate\Support\Facades\Route;
@@ -37,4 +36,10 @@ Route::prefix('advantages')->group(function () {
 Route::prefix('faq')->group(function () {
     Route::get('/', [FaqController::class, 'getAll']);
     Route::get('id/{id}', [FaqController::class, 'getById']);
+});
+
+// subscription
+Route::prefix('subscriptions')->group(function () {
+    Route::get('/', [SubscriptionsController::class, 'getAll']);
+    Route::get('id/{id}', [SubscriptionsController::class, 'getById']);
 });

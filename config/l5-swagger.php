@@ -127,7 +127,7 @@ return [
             ],
 
             /**
-             * pattern: string       $pattern File pattern(s) to scan (default: *.php) .
+             * pattern: string       $pattern File pattern(s) to scan (default: *SubscriptionsController.php) .
              *
              * @see \OpenApi\scan
              */

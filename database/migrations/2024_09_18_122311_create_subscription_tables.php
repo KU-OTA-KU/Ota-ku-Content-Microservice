@@ -10,21 +10,22 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('advantages', function (Blueprint $table) {
+        Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
 
-        Schema::create('advantages_translations', function (Blueprint $table) {
+        Schema::create('subscriptions_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('advantages_id')->constrained('advantages')->onDelete('cascade');
+            $table->foreignId('subscriptions_id')->constrained('subscriptions')->onDelete('cascade');
             $table->string('locale', 5);
             $table->text('title')->nullable();
-            $table->string('icon', 20)->nullable();
             $table->longText('description')->nullable();
+            $table->float('price')->nullable();
+            $table->json('benefits')->nullable();
             $table->timestamps();
 
-            $table->unique(['advantages_id', 'locale']);
+            $table->unique(['subscriptions_id', 'locale']);
         });
     }
 
@@ -33,7 +34,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('advantages_translations');
-        Schema::dropIfExists('advantages');
+        Schema::dropIfExists('subscriptions_translations');
+        Schema::dropIfExists('subscriptions');
     }
 };

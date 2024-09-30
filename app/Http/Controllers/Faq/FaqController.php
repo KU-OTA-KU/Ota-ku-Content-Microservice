@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache; // Импорт фасада Cache
+use Illuminate\Support\Facades\Cache;
+
+// Импорт фасада Cache
 use App\Models\FaqTranslation;
 
 class FaqController extends Controller

@@ -1,16 +1,15 @@
-version: '2'
-
 services:
+
     nginx:
         image: nginx:latest
         volumes:
-            - ./:/var/www
-            - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+            - './:/var/www'
+            - './_docker/nginx/conf.d:/etc/nginx/conf.d'
         ports:
-            - "49152:80"
+            - "49154:80"
         depends_on:
             - app
-        container_name: nginx
+        container_name: content-microservice-nginx
 
     app:
         build:
@@ -19,8 +18,11 @@ services:
         volumes:
             - ./:/var/www
         depends_on:
+            - phpredisadmin
+            - phpmyadmin
+            - cache
             - db
-        container_name: project
+        container_name: content-microservice
 
     db:
         image: mysql:8.0
@@ -31,14 +33,36 @@ services:
             MYSQL_DATABASE: contentMicroservice
             MYSQL_ROOT_PASSWORD: root
         ports:
-            - "49153:3306"
+            - "49155:3306"
         command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
-        container_name: database
+        container_name: content-microservice-db
+
     cache:
         image: redis:latest
         restart: always
         volumes:
             - ./tmp/cache:/var/lib/redis
         ports:
-            - "49154:6379"
-        container_name: cache
+            - "49156:6379"
+        container_name: content-microservice-cache
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: content-microservice-php-my-admin
+        ports:
+            - "49157:80"
+        environment:
+            PMA_HOST: db
+            PMA_PORT: 3306
+
+    phpredisadmin:
+        image: erikdubbelboer/phpredisadmin
+        container_name: content-microservice-php-redis-admin
+        ports:
+            - "49158:80"
+        environment:
+            REDIS_1_HOST: cache
+            REDIS_1_PORT: 6379
+            REDIS_1_AUTH: null
+        depends_on:
+            - cache

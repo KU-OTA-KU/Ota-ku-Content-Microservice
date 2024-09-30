@@ -6,6 +6,7 @@ use App\Models\AdvantagesTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
@@ -55,11 +56,12 @@ class advantagesController extends Controller
 
             if (!empty($advantagesTranslations)) {
                 Cache::put($cacheKey, $advantagesTranslations, $cacheTTL);
+                Log::info('set in cache');
             } else {
                 return response()->json(['status' => 'failed', 'message' => 'Advantages not found'], 404);
             }
         }
-
+        Log::info('adding cache');
         return response()->json([
             'status' => 'success',
             'message' => $advantagesTranslations
